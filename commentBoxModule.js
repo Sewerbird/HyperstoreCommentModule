@@ -2,7 +2,7 @@
 * @jsx React.DOM
 */
 
-function HyperstoreCommentModule(domTargetID, hyperstoreURL){
+function HyperstoreCommentModule(domTargetID, hyperstoreURL, contentID){
 	var module = this;
 	this.store = new Backwire.Hyperstore(hyperstoreURL);
 	this.defaultAvatar = "http://www.gravatar.com/avatar/00000000000000000000000000000000?d=mm";
@@ -22,7 +22,7 @@ function HyperstoreCommentModule(domTargetID, hyperstoreURL){
 				self.forceUpdate();
 			})
 			//TODO: make this find listen only to certain subset of comments
-			module.store.find({},{sort:{createdAt:-1}},function(res,err,ver){
+			module.store.find({contentID: contentID},{sort:{createdAt:-1}},function(res,err,ver){
 				if(res && !err)
 				{
 					self.setState({data:res})
@@ -84,7 +84,7 @@ function HyperstoreCommentModule(domTargetID, hyperstoreURL){
 			this.refs.text.getDOMNode().value = '';
 			if(text && author)
 			{
-				this.props.onCommentSubmit({author: author, text:text, avatar:avatar});
+				this.props.onCommentSubmit({author: author, text:text, avatar:avatar, contentID: contentID});
 				this.refs.text.getDOMNode().value = '';
 			}
 			return false;
