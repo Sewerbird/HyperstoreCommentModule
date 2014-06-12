@@ -43,9 +43,7 @@ function HyperstoreCommentModule(domTargetID, hyperstoreURL, contentID){
 		render: function(){
 			return (
 				React.DOM.div( {className:"commentBox panel panel-default"}, 
-					React.DOM.div( {className:"panel-heading"}, 
-						React.DOM.h3(null, "Comments")
-					),
+					React.DOM.div( {className:"panel-heading"}, "Comments"),
 					React.DOM.div( {className:"panel-body"}, 
 						CommentList( {data:this.state.data}),
 						module.store.user?CommentForm( {onCommentSubmit:this.handleCommentSubmit}):""
