@@ -2,11 +2,13 @@
 * @jsx React.DOM
 */
 
-function HyperstoreCommentModule(domTargetID, hyperstoreURL, contentID){
+function HyperstoreCommentModule(domTargetID, hyperstoreURL, content_id, options){
 	var module = this;
 	this.store = new Backwire.Hyperstore(hyperstoreURL);
 	this.defaultAvatar = "http://www.gravatar.com/avatar/00000000000000000000000000000000?d=mm";
-	this.stringToColour = function(str) {
+	this.stringToColour = function(str) { 
+		//User override
+		if(options.userColor) return options.userColor;
 	    // str to hash
 	    for (var i = 0, hash = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash));
 
@@ -21,8 +23,7 @@ function HyperstoreCommentModule(domTargetID, hyperstoreURL, contentID){
 			module.store.getUser(function(user){
 				self.forceUpdate();
 			})
-			//TODO: make this find listen only to certain subset of comments
-			module.store.find({contentID: contentID},{sort:{createdAt:-1}},function(res,err,ver){
+			module.store.find({content_id: content_id},{sort:{createdAt:-1}},function(res,err,ver){
 				if(res && !err)
 				{
 					self.setState({data:res})
@@ -57,8 +58,8 @@ function HyperstoreCommentModule(domTargetID, hyperstoreURL, contentID){
 
 	var CommentList = React.createClass({displayName: 'CommentList',
 		render: function(){
-			var commentNodes = this.props.data.map(function (comment){
-				return Comment( {color:module.stringToColour(comment.author), author:comment.author, avatar:comment.avatar?comment.avatar:module.defaultAvatar}, comment.text)
+			var commentNodes = _.sortBy(this.props.data, function(v,k){return -k}).map(function (comment){
+				return Comment( {color:module.stringToColour(comment.author), author:comment.author, date:moment(comment.createdAt).format("ll")}, comment.text)
 			});
 			return (
 				React.DOM.ul( {className:"commentList list-group", 'overflow-y':"auto", height:300}, 
@@ -71,21 +72,15 @@ function HyperstoreCommentModule(domTargetID, hyperstoreURL, contentID){
 	var CommentForm = React.createClass({displayName: 'CommentForm',
 		handleSubmit: function(e){
 			e.preventDefault();
-			var author = 'public'
-			var avatar = module.defaultAvatar;
 			if(module.store.user)
 			{
-				author = module.store.user.username?module.store.user.username:module.store.user.emails[0];
-				if(module.store.user.profile)
-					avatar = module.store.user.profile.avatarLink?module.store.user.profile.avatarLink:module.defaultAvatar;
-			}
-			console.info("XXXXX",avatar);
-			var text = this.refs.text.getDOMNode().value.trim();
-			this.refs.text.getDOMNode().value = '';
-			if(text && author)
-			{
-				this.props.onCommentSubmit({author: author, text:text, avatar:avatar, contentID: contentID});
+				var avatar = module.defaultAvatar;
+				if(module.store.user.profile) avatar = module.store.user.profile.avatarLink?module.store.user.profile.avatarLink:module.defaultAvatar;
+				var author = {_id:module.store.user._id,username:module.store.user.username,avatar:avatar};
+				var text = this.refs.text.getDOMNode().value.trim();
 				this.refs.text.getDOMNode().value = '';
+				if(text)
+					this.props.onCommentSubmit({author: author, text:text, content_id: content_id});
 			}
 			return false;
 		},
@@ -105,11 +100,16 @@ function HyperstoreCommentModule(domTargetID, hyperstoreURL, contentID){
 		render: function(){
 				return(
 					React.DOM.li( {className:"comment list-group-item"}, 
-						React.DOM.span({style:{color:this.props.color}},
-							React.DOM.img({width:"32px",src:this.props.avatar,className:"img-circle",alt:"rounded avatar"}),
+						React.DOM.span({},
+							React.DOM.img({width:"32px",src:this.props.author.avatar,className:"img-circle",alt:"rounded avatar"}),
 							" ",
-							this.props.author),
-						": ", 
+							React.DOM.div({style:{display:"inline-block"}},
+								React.DOM.span({style:{color:this.props.color}},this.props.author.username),
+								" - ",
+								React.DOM.span({style:{color:"#AAA"}},this.props.date)
+							)
+						),
+						" : ", 
 						this.props.children
 					)
 				);

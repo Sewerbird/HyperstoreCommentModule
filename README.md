@@ -5,6 +5,7 @@ Depends on the following scripts to function:
     <script src="http://fb.me/react-0.10.0.js"></script>
     <script src="http://fb.me/JSXTransformer-0.10.0.js"></script>
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+	<script src="http://momentjs.com/downloads/moment-with-langs.min.js"></script>
     <script src="js/bootstrap.js"></script>
 
 Once you have that, include the commentbox on your page by targetting an element by its `id` with something like this:
