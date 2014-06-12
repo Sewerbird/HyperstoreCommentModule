@@ -93,8 +93,8 @@ function HyperstoreCommentModule(domTargetID, hyperstoreURL, contentID){
 			return (
 				React.DOM.form( {className:"commentForm input-group", onSubmit:this.handleSubmit},
 					React.DOM.input( {className:"form-control", type:"text", ref:"text", placeholder:"Your comment"} ),
-					React.DOM.span(  {className:"input-group-addon"},
-						React.DOM.input( {classname:"btn btn-default", type:"submit", value:"Post"}))
+					React.DOM.span(  {className:"input-group-btn"},
+						React.DOM.input( {className:"btn btn-default", type:"submit", value:"Post"}))
 				)
 			);
 		}
