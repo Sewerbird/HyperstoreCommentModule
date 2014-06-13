@@ -5,7 +5,7 @@
 function HyperstoreCommentModule(domTargetID, hyperstoreURL, content_id, options){
 	var module = this;
 	this.store = new Backwire.Hyperstore(hyperstoreURL);
-	this.defaultAvatar = "http://www.gravatar.com/avatar/00000000000000000000000000000000?d=mm";
+	this.defaultAvatar = options.defaultUserAvatar?options.defaultUserAvatar:"http://www.gravatar.com/avatar/00000000000000000000000000000000?d=mm";
 	this.stringToColour = function(str) { 
 		//User override
 		if(options.userColor) return options.userColor;
@@ -27,6 +27,7 @@ function HyperstoreCommentModule(domTargetID, hyperstoreURL, content_id, options
 				if(res && !err)
 				{
 					self.setState({data:res})
+					$('.expandcomment').readmore();
 				}
 				else if(err)
 					console.error("Error with comment box reactive find: "+err);
@@ -75,8 +76,13 @@ function HyperstoreCommentModule(domTargetID, hyperstoreURL, content_id, options
 			if(module.store.user)
 			{
 				var avatar = module.defaultAvatar;
-				if(module.store.user.profile) avatar = module.store.user.profile.avatarLink?module.store.user.profile.avatarLink:module.defaultAvatar;
-				var author = {_id:module.store.user._id,username:module.store.user.username,avatar:avatar};
+				var profile = null;
+				if(module.store.user.profile) 
+					{
+						avatar = module.store.user.profile.avatarLink?module.store.user.profile.avatarLink:module.defaultAvatar;
+						profile = module.store.user.profile.profileLink?module.store.user.profile.profileLink:null;
+					}
+				var author = {_id:module.store.user._id,username:module.store.user.username,avatar:avatar,profile:profile};
 				var text = this.refs.text.getDOMNode().value.trim();
 				this.refs.text.getDOMNode().value = '';
 				if(text)
@@ -88,8 +94,8 @@ function HyperstoreCommentModule(domTargetID, hyperstoreURL, content_id, options
 			return (
 				React.DOM.form( {className:"commentForm input-group", onSubmit:this.handleSubmit},
 					React.DOM.input( {className:"form-control", type:"text", ref:"text", placeholder:"Your comment"} ),
-					React.DOM.span(  {className:"input-group-btn"},
-						React.DOM.input( {className:"btn btn-default", type:"submit", value:"Post"}))
+					React.DOM.span(  {className:"input-group-addon"},
+						React.DOM.input( {classname:"btn btn-default", type:"submit", value:"Post"}))
 				)
 			);
 		}
@@ -104,13 +110,16 @@ function HyperstoreCommentModule(domTargetID, hyperstoreURL, content_id, options
 							React.DOM.img({width:"32px",src:this.props.author.avatar,className:"img-circle",alt:"rounded avatar"}),
 							" ",
 							React.DOM.div({style:{display:"inline-block"}},
-								React.DOM.span({style:{color:this.props.color}},this.props.author.username),
+								//Decide whether to link to a profile
+								(this.props.author.profile?
+									React.DOM.a({href:this.props.author.profile,style:{color:this.props.color}},this.props.author.username):
+									React.DOM.span({style:{color:this.props.color}},this.props.author.username)),
 								" - ",
 								React.DOM.span({style:{color:"#AAA"}},this.props.date)
 							)
 						),
 						" : ", 
-						this.props.children
+						React.DOM.p({className:"expandcomment"},this.props.children)	
 					)
 				);
 		}

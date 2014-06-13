@@ -7,6 +7,7 @@ Depends on the following scripts to function:
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 	<script src="http://momentjs.com/downloads/moment-with-langs.min.js"></script>
     <script src="js/bootstrap.js"></script>
+    <script src="js/readmore.min.js"></script>
 
 Once you have that, include the commentbox on your page by targetting an element by its `id` with something like this:
 
@@ -24,3 +25,5 @@ The HyperstoreCommentModule has three parameters:
 - The `contentID` that determines which comments in the Backwire collection will show up, and to tag new comments with. This associates comments with comment box instances on your site.
 
 The comments are stored in the collection you specify in the url parameter of your Backwi.re application. It fetches the 'provile.avatarLink', 'emails', and 'username' fields of each comment author from the 'users' collection.
+
+Utilizes Jed Foster's lovely ['readmore.js'](http://jedfoster.com/Readmore.js/)
