@@ -124,9 +124,16 @@ function HyperstoreCommentModule(domTargetID, hyperstoreURL, content_id, options
 				);
 		}
 	});
-
-	React.renderComponent(
-		CommentBox(null ),
-		document.getElementById(domTargetID)
-	);	
+	if(document.getElementById(domTargetID) !== null)
+	{
+		React.renderComponent(
+			CommentBox(null ),
+			document.getElementById(domTargetID)
+		);	
+	}
+	else
+	{
+		console.error("Document doesn't have an element with id = "+domTargetID+". Here's the 'document':");
+		console.info(document)
+	}
 }
