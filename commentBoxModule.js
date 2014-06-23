@@ -4,6 +4,7 @@
 
 function HyperstoreCommentModule(domTargetID, hyperstoreURL, content_id, options){
 	var module = this;
+	options = options?options:{hideCommentsWhenEmptyAndSignedOut: true};
 	this.store = new Backwire.Hyperstore(hyperstoreURL);
 	this.defaultAvatar = options.defaultUserAvatar?options.defaultUserAvatar:"http://www.gravatar.com/avatar/00000000000000000000000000000000?d=mm";
 	this.stringToColour = function(str) { 
@@ -43,11 +44,16 @@ function HyperstoreCommentModule(domTargetID, hyperstoreURL, content_id, options
 			});
 		},
 		render: function(){
-			return (
-				React.DOM.div( {className:"commentBox panel panel-default"}, 
-					React.DOM.div( {className:"panel-heading"}, 
+			var heading = React.DOM.div( {className:"panel-heading"}, 
 						React.DOM.h3(null, "Comments")
-					),
+					);
+			if(options.hideCommentsHeader) heading = React.DOM.div();
+			var hide = {}
+			if(options.hideCommentsWhenEmptyAndSignedOut && !module.store.user) hide = {display:"none"}
+			return (
+				React.DOM.div( {className:"commentBox panel panel-default", style:hide}, 
+					heading
+					,
 					React.DOM.div( {className:"panel-body"}, 
 						CommentList( {data:this.state.data}),
 						module.store.user?CommentForm( {onCommentSubmit:this.handleCommentSubmit}):""
@@ -62,6 +68,7 @@ function HyperstoreCommentModule(domTargetID, hyperstoreURL, content_id, options
 			var commentNodes = _.sortBy(this.props.data, function(v,k){return -k}).map(function (comment){
 				return Comment( {color:module.stringToColour(comment.author), author:comment.author, date:moment(comment.createdAt).format("ll")}, comment.text)
 			});
+			if(_.size(commentNodes) == 0) return React.DOM.span();
 			return (
 				React.DOM.ul( {className:"commentList list-group", 'overflow-y':"auto", height:300}, 
 					commentNodes
